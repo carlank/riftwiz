@@ -349,6 +349,12 @@ function init (jsons) {
 			key_pressed (e){
 				var K = e.key;
 				if (e.ctrlKey) return; // ignore ctrl+ shortcuts 
+				
+				if (K == 'Escape' || K == "Esc" || e.keyCode == 27) {
+					for (school in schools) {
+						this.schools[name].selected = false;
+					}
+				}
 					
 				for (name in this.schools) {
 					if (this.schools[name].letter.toLowerCase() == K.toLowerCase()){
