@@ -351,7 +351,7 @@ function init (jsons) {
 				if (e.ctrlKey) return; // ignore ctrl+ shortcuts 
 				
 				if (K == 'Escape' || K == "Esc" || e.keyCode == 27) {
-					for (school in schools) {
+					for (school in this.schools) {
 						this.schools[school].selected = false;
 					}
 				}
