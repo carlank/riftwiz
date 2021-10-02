@@ -59,3 +59,9 @@ text-decoration-line:underline;
 .school_name.no-conjuration {
 text-decoration-line:line-through;
 }
+input.invalid {
+outline: 1px red;
+-moz-box-shadow:inset 1px 1px 6px red;
+-webkit-box-shadow:inset 1px 1px 6px red;
+box-shadow:inset 1px 1px 6px red;
+}

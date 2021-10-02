@@ -198,6 +198,16 @@
 			</div>
 			</div>
 			<div class="schools_filter col-3">
+				<div>
+					<input
+					@focus="is_search_input_in_focus=true"
+					@blur="is_search_input_in_focus=false"
+					v-model="search_query"
+					:class="{'invalid':this.search_regex===null}"
+					type="text"
+					placeholder="Search (regex syntax)"
+					/>
+				</div>
 				<template v-for="(item,index) in schools">
 					<div>
 							<span class="school_name" @click="toggle_school($event,index)" :class="[{selected:item.selected},index]" v-html="decorate_school_name(index)"></span>
@@ -305,6 +315,9 @@ function init (jsons) {
 			selected_item_type:null,
 			
 			school_filters: [],
+			
+			is_search_input_in_focus:false,
+			search_query: '',
 		},
 		mounted: function(){
 			var _t=this;
@@ -349,6 +362,7 @@ function init (jsons) {
 			key_pressed (e){
 				var K = e.key;
 				if (e.ctrlKey) return; // ignore ctrl+ shortcuts 
+				if (this.is_search_input_in_focus) return; // disable when search input is in focus
 				
 				if (K == 'Escape' || K == "Esc" || e.keyCode == 27) {
 					for (school in this.schools) {
@@ -385,7 +399,7 @@ function init (jsons) {
 					this.selected_item_type = type;
 				}
 			},
-			check_against_filters(){ // TODO:rework this stuff
+			check_against_filters(){ // TODO:rework this stuff. It really needs a rework now.
 				var _t=this;
 				return {
 					'spell':function(spell_data){
@@ -394,14 +408,23 @@ function init (jsons) {
 								return false;
 							}
 						}
+						
+						if(_t.search_regex) // TODO(?): check upgrades for a match too
+							return _t.search_regex.test(spell_data.title) || _t.search_regex.test(spell_data.description);
+						
 						return true;
 					},
 					'skill':function(skill_data){
+					
 						for (k in _t.schools){
 							if (_t.schools[k].selected && indexOfCI(skill_data.schools,k)===-1){
 								return false;
 							}
 						}
+						
+						if(_t.search_regex) // TODO(?): check conditions for a match too
+							return _t.search_regex.test(skill_data.title) || _t.search_regex.test(skill_data.applies_to);
+							
 						return true;
 					},
 					'shrine':function(shrine_data){ // shrines conditions are || between eachother, then && if the "cj-only"/"non-cj" is present
@@ -412,7 +435,10 @@ function init (jsons) {
 								if (indexOfCI(spell_schools,'conjuration')===-1) {
 									return false;
 								} else if (shrine_data.conditions.length==1) { // for cases with "cj-only" being the only requirement
-									return true;
+									if(_t.search_regex)
+										return _t.search_regex.test(shrine_data.title) || _t.search_regex.test(shrine_data.desc);
+									else
+										return true;
 								}
 							}
 							
@@ -424,12 +450,18 @@ function init (jsons) {
 							
 							for (var z = 0; z<spell_schools.length;z++){
 								if (indexOfCI(shrine_data.conditions,spell_schools[z])!==-1)
-									return true;
+									if(_t.search_regex)
+										return _t.search_regex.test(shrine_data.title) || _t.search_regex.test(shrine_data.desc);
+									else
+										return true;
 							}
 							
 							return false;
 						}
 						
+						if(_t.search_regex)
+							return _t.search_regex.test(shrine_data.title) || _t.search_regex.test(shrine_data.desc);
+							
 						return true;
 					}
 				}
@@ -441,8 +473,20 @@ function init (jsons) {
 			},
 			displayed_item_type: function() {
 				return null || this.hovered_item_type || this.selected_item_type;
-			}, 
-			
+			},
+			search_regex: function() {
+				var query = this.search_query.trim();
+				if (query === '') return false;
+				var regex = false;
+				try {
+					regex = new RegExp(query, 'i');
+				} catch (e) {
+					regex = null;
+				}
+				return regex;
+				
+				
+			}
 		},
 	});
 };
