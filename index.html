@@ -383,7 +383,7 @@ function init (jsons) {
 				
 				if (K == 'Escape' || K == "Esc" || e.keyCode == 27) {
 					for (school in this.schools) {
-						this.schools[school].selected = false;
+						Vue.set(this.schools[school],'selected',false);
 					}
 				}
 					
