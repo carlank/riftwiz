@@ -126,6 +126,23 @@
 				</template>
 			</div>
 			</div>
+			
+			<div class="col-3">
+				<div>
+					Query:
+					<template v-if="search_regex">
+						/{{ search_query.trim()}}/i
+					</template>
+				</div>
+				<div>
+					Schools:
+					<template v-for="(item,index) in schools">
+						<template v-if="item.selected">
+							{{ index }}
+						</template>
+					</template>
+				</div>
+			</div>
 		</div>
 		<div class="row">
 			<div :class="[{'v-hidden':false},'col-3','column','spells']">
